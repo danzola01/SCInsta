@@ -55,3 +55,12 @@ livecontainer
 
 src/**/wip.x
 src/**/wip.xm
+# Personal SideStore inputs and outputs
+*.ipa
+*.mobileprovision
+.env
+.env.*
+!.env.example
+.secrets/
+output/
+__pycache__/

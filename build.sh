@@ -75,7 +75,14 @@ then
     # Create IPA File
     echo -e '\033[1m\033[32mCreating the IPA file...\033[0m'
     rm -f packages/SCInsta-sideloaded.ipa
-    cyan -i "packages/${ipaFile}" -o packages/SCInsta-sideloaded.ipa -f $SCINSTAPATH $FLEXPATH -c $COMPRESSION -m 15.0 -du
+    identity_args=()
+    if [[ -n "${SCINSTA_DISPLAY_NAME:-}" ]]; then
+        identity_args+=(-n "$SCINSTA_DISPLAY_NAME")
+    fi
+    if [[ -n "${SCINSTA_BUNDLE_ID:-}" ]]; then
+        identity_args+=(-b "$SCINSTA_BUNDLE_ID")
+    fi
+    cyan -i "packages/${ipaFile}" -o packages/SCInsta-sideloaded.ipa -f $SCINSTAPATH $FLEXPATH -c $COMPRESSION -m 15.0 -du "${identity_args[@]}"
     
     # Patch IPA for sideloading
     ipapatch --input "packages/SCInsta-sideloaded.ipa" --inplace --noconfirm

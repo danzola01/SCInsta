@@ -8,23 +8,22 @@ name: Build and Package SCInsta
 on:
     workflow_dispatch:
         inputs:
-            decrypted_instagram_url:
-                description: "The direct URL to the decrypted Instagram IPA"
-                default: ""
+            ipa_release:
+                description: "Unpublished draft release tag containing exactly one base IPA"
                 required: true
                 type: string
-            upload_artifact:
-                description: "Upload Artifact"
-                default: true
-                required: false
-                type: boolean
-  
+            ipa_sha256:
+                description: "Expected SHA-256 of the inspected base IPA"
+                required: true
+                type: string
+
 concurrency:
     group: ${{ github.workflow }}-${{ github.ref }}
     cancel-in-progress: true
 jobs:
     build:
         name: Build SCInsta
+        if: github.repository == 'danzola01/SCInsta' && github.ref == 'refs/heads/sidestore'
         runs-on: macos-latest
         permissions:
             contents: write
@@ -36,8 +35,32 @@ jobs:
                 path: main
                 submodules: recursive
 
+            - name: Retrieve and validate base IPA
+              env:
+                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                GH_REPO: ${{ github.repository }}
+                IPA_RELEASE: ${{ inputs.ipa_release }}
+                EXPECTED_SHA256: ${{ inputs.ipa_sha256 }}
+              run: |
+                set -euo pipefail
+                [[ "$EXPECTED_SHA256" =~ ^[a-fA-F0-9]{64}$ ]] || { echo "Invalid SHA-256"; exit 1; }
+                [[ "$IPA_RELEASE" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || { echo "Invalid base release tag"; exit 1; }
+                test "$(gh release view "$IPA_RELEASE" --json isDraft --jq '.isDraft')" = true
+                count=$(gh release view "$IPA_RELEASE" --json assets --jq '[.assets[] | select(.name | endswith(".ipa"))] | length')
+                test "$count" = 1
+                mkdir -p main/packages main/output
+                gh release download "$IPA_RELEASE" --pattern '*.ipa' --output main/packages/com.burbn.instagram.ipa
+                python3 main/scripts/inspect_ipa.py main/packages/com.burbn.instagram.ipa --require-decrypted --sha256 "$EXPECTED_SHA256" --output main/output/base-ipa.json
+                python3 - <<'PYTHON'
+                import json
+                from pathlib import Path
+                report = json.loads(Path('main/output/base-ipa.json').read_text())
+                if report['bundle_id'] != 'com.burbn.instagram':
+                    raise SystemExit('Expected a base Instagram IPA')
+                PYTHON
+
             - name: Install Dependencies
-              run: brew install ldid dpkg make
+              run: brew install ldid dpkg make cmake
 
             - name: Set PATH environment variable
               run: echo "$(brew --prefix make)/libexec/gnubin" >> $GITHUB_PATH 
@@ -85,19 +108,6 @@ jobs:
               env:
                 THEOS: ${{ github.workspace }}/theos
 
-            - name: Prepare Instagram IPA
-              run: |
-                cd main
-
-                mkdir -p packages
-                wget "$Instagram_URL" --no-verbose -O packages/com.burbn.instagram.ipa
-
-                ls -la packages
-                
-              env:
-                THEOS: ${{ github.workspace }}/theos
-                Instagram_URL: ${{ inputs.decrypted_instagram_url }}
-
             - name: Get SCInsta Version
               id: scinsta_version
               run: |
@@ -108,10 +118,10 @@ jobs:
             
             - name: Build SCInsta tweak for sideloading (as IPA)
               run: |
-                pip install --force-reinstall https://github.com/asdfzxcvbn/pyzule-rw/archive/main.zip
+                pipx install https://github.com/asdfzxcvbn/pyzule-rw/archive/main.zip
                 
                 cd main
-                curl -Lo ipapatch https://github.com/asdfzxcvbn/ipapatch/releases/download/v2.1.3/ipapatch.macos-arm64
+                curl --fail --location --output ipapatch https://github.com/asdfzxcvbn/ipapatch/releases/download/v2.1.3/ipapatch.macos-arm64
                 chmod +x ipapatch
                 export PATH=.:$PATH
                 ls -la
@@ -121,32 +131,32 @@ jobs:
                 
               env:
                 THEOS: ${{ github.workspace }}/theos
+                SCINSTA_DISPLAY_NAME: SCInsta
+                SCINSTA_BUNDLE_ID: com.danzola.scinsta
 
-            - name: Rename IPA to include version info
+            - name: Validate generated IPA
               run: |
-                cd main/packages
-                mv "$(ls -t | head -n1)" "SCInsta_sideloaded_v${SCINSTA_VERSION}.ipa"
+                set -euo pipefail
+                cp main/packages/SCInsta-sideloaded.ipa main/output/SCInsta.ipa
+                python3 main/scripts/inspect_ipa.py main/output/SCInsta.ipa --require-decrypted --output main/output/built-ipa.json
+                python3 - <<'PYTHON'
+                import json
+                from pathlib import Path
+                report = json.loads(Path('main/output/built-ipa.json').read_text())
+                if report['bundle_id'] != 'com.danzola.scinsta':
+                    raise SystemExit('Unexpected output app identity')
+                names = {Path(name).name for name in report['dylibs']}
+                if not {'SCInsta.dylib', 'FLEXing.dylib', 'libflex.dylib'} <= names:
+                    raise SystemExit('Missing expected injected libraries')
+                PYTHON
 
-            - name: Pass package name to upload action
-              id: package_name
+            - name: Create unpublished output release
+              env:
+                GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                GH_REPO: ${{ github.repository }}
+                OUTPUT_TAG: scinsta-ipa${{ github.run_id }}-${{ github.run_attempt }}
               run: |
-                echo "package=$(ls -t main/packages |  head -n1)" >> "$GITHUB_OUTPUT"
-
-            - name: Upload Artifact
-              if: ${{ inputs.upload_artifact }}
-              uses: actions/upload-artifact@v4
-              with:
-                name: SCInsta_sideloaded_v${{ steps.scinsta_version.outputs.version }}
-                path: ${{ github.workspace }}/main/packages/${{ steps.package_name.outputs.package }}
-                if-no-files-found: error
-
-            - name: Create Release
-              uses: softprops/action-gh-release@v2.0.6
-              with:
-                name: SCInsta_sideloaded_v${{ steps.scinsta_version.outputs.version }}
-                files: ${{ github.workspace }}/main/packages/SCInsta_sideloaded_v*.ipa
-                draft: true
-
-            - name: Output Release URL
-              run: |
-                echo "::notice::Release available at: https://github.com/${{ github.repository }}/releases"
+                set -euo pipefail
+                gh release create "$OUTPUT_TAG" main/output/SCInsta.ipa main/output/base-ipa.json main/output/built-ipa.json --draft --target "$GITHUB_SHA" --title "Personal SCInsta build $GITHUB_RUN_ID" --notes "Personal SideStore build. Keep this release unpublished."
+                test "$(gh release view "$OUTPUT_TAG" --json isDraft --jq '.isDraft')" = true
+                echo "Output is in unpublished draft release: $OUTPUT_TAG" >> "$GITHUB_STEP_SUMMARY"
