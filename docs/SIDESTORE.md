@@ -170,3 +170,6 @@ final feedback loop, and Instagram 455 feature compatibility is unverified.
 
 The private crash attachment is not copied into Git; this note records only
 the diagnostic stack and OS version.
+
+Helper-repair trial run: https://github.com/danzola01/SCInsta/actions/runs/43664402825
+Source: `0d3346f708d461bce4b755afadb4216d82f5a80a`. Dispatched; outcome pending.
