@@ -268,3 +268,25 @@ Asset: `SCInsta.ipa`, 291,813,522 bytes, remote SHA-256:
 `1ed1f7f991b4e9120c8a9c5f1a884f5568ca6351a1683e64d3c59aed0a41b8b4`.
 Install over the current app. User should log in once if necessary, then perform
 two force-quit/reopen cycles and report login persistence and beta-prompt behavior.
+
+## Cache-preservation trial
+
+User feedback on the session-compatibility build: the recurring beta prompt is
+fixed, but login is still lost across an ordinary swipe-away/reopen cycle. This
+separates the confirmed receipt behavior from the unresolved session issue.
+
+Next isolated change: remove the automatic `[SCIUtils cleanCache]` call from
+`didFinishLaunchingWithOptions:`. The upstream method deletes the full temp and
+Library/Caches contents plus the analytics directory after Instagram's launch
+callback. It remains unproven that this cleanup causes logout on Instagram 455;
+this build tests that hypothesis without changing keychain/app-group routing,
+app identity, receipt handling or preferences. The cleanup implementation remains
+available in source but has no remaining call site.
+
+No automated test is claimed to establish login persistence: the signed iPhone
+session is the required test environment. Hosted compilation and existing IPA
+checks validate packaging. User test: install over the current app, log in,
+leave it open briefly, then swipe away and reopen twice. Check both login state
+and SCInsta preference retention. If logout persists, obtain the actual login
+screen and investigate keychain operations/group preferences with targeted,
+credential-free diagnostics rather than claiming this change solved it.

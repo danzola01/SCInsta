@@ -74,8 +74,8 @@ BOOL dmVisualMsgsViewedButtonEnabled = false;
         }
     });
 
-    NSLog(@"[SCInsta] Cleaning cache...");
-    [SCIUtils cleanCache];
+    // Preserve Instagram-managed files across launches. Session state may live
+    // in locations that the upstream blanket cache cleanup deletes.
 
     if ([SCIUtils getBoolPref:@"flex_app_launch"]) {
         [[objc_getClass("FLEXManager") sharedManager] showExplorer];
