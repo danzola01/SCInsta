@@ -212,3 +212,14 @@ the two-finger shortcut. No feature preferences were changed. Hosted compilation
 will validate the UIKit code; actual gesture delivery and feature behavior need
 user testing. The existing device report is the failing UI feedback loop; no
 local iOS runtime is available for a UI regression test.
+
+Settings-access trial build succeeded:
+https://github.com/danzola01/SCInsta/actions/runs/43665728372
+(source `e041ed310d7b06d89035e096ed13804692b61e33`). UIKit compilation, helper
+regression harness and IPA checks passed; gesture handling awaits device testing.
+Unpublished draft: `scinsta-ipa43665728372-1`.
+Owner page: https://github.com/danzola01/SCInsta/releases/tag/untagged-74e9e73f8e4794f3f3c7
+Asset: `SCInsta.ipa`, 291,811,120 bytes. Remote SHA-256:
+`df4e588f20187006ebc475f762bb3394538999e096aa551232d87cc669f36f00`.
+Install over the previous app, then hold two fingers still for one second on
+a normal app screen and verify the SCInsta settings sheet opens.
