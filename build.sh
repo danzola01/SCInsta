@@ -85,7 +85,11 @@ then
     cyan -i "packages/${ipaFile}" -o packages/SCInsta-sideloaded.ipa -f $SCINSTAPATH $FLEXPATH -c $COMPRESSION -m 15.0 -du "${identity_args[@]}"
     
     # Patch IPA for sideloading
-    ipapatch --input "packages/SCInsta-sideloaded.ipa" --inplace --noconfirm
+    patch_args=()
+    if [[ -n "${ZXPLUGINS_DYLIB:-}" ]]; then
+        patch_args+=(--dylib "$ZXPLUGINS_DYLIB")
+    fi
+    ipapatch --input "packages/SCInsta-sideloaded.ipa" --inplace --noconfirm "${patch_args[@]}"
 
     # Newer Instagram versions also embed extensions outside PlugIns/.
     python3 scripts/strip_extensions.py packages/SCInsta-sideloaded.ipa packages/SCInsta-no-extensions.ipa

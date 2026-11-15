@@ -116,6 +116,21 @@ jobs:
                 echo "SCINSTA_VERSION=${SCINSTA_VERSION}" >> "$GITHUB_ENV"
                 echo "version=${SCINSTA_VERSION}" >> "$GITHUB_OUTPUT"
             
+            - name: Build sideload helper with nil-group fallback
+              env:
+                THEOS: ${{ github.workspace }}/theos
+              run: |
+                set -euo pipefail
+                git clone --recurse-submodules https://github.com/asdfzxcvbn/zxPluginsInject.git
+                cd zxPluginsInject
+                git checkout d849cd510f9a925d692941b8d43c5efe1ca56649
+                git submodule update --init --recursive
+                python3 ../main/scripts/test_group_fallback.py src/SideloadFix.xm --expect-crash
+                git apply --unidiff-zero ../main/patches/zxPluginsInject-nil-group.patch
+                python3 ../main/scripts/test_group_fallback.py src/SideloadFix.xm
+                make TARGET=iphone:clang:16.2:14.0
+                test -f .theos/obj/debug/zxPluginsInject.dylib
+
             - name: Build SCInsta tweak for sideloading (as IPA)
               run: |
                 pipx install https://github.com/asdfzxcvbn/pyzule-rw/archive/main.zip
@@ -133,6 +148,7 @@ jobs:
                 THEOS: ${{ github.workspace }}/theos
                 SCINSTA_DISPLAY_NAME: SCInsta
                 SCINSTA_BUNDLE_ID: com.danzola.scinsta
+                ZXPLUGINS_DYLIB: ${{ github.workspace }}/zxPluginsInject/.theos/obj/debug/zxPluginsInject.dylib
 
             - name: Validate generated IPA
               run: |

@@ -142,3 +142,31 @@ This is a repack of the successful first build, not a new tweak compilation.
 Main executable and all tweak libraries are unchanged. Widgets, sharing into
 Instagram, lock-screen camera and notification extensions have been removed.
 Draft destination: `scinsta-455-no-extensions-1`; keep unpublished.
+
+## Launch crash and helper repair trial
+
+The user reports the extension-free IPA installs, then exits immediately on
+launch. The supplied crash report identifies iPhone OS 27.0.1 (24A446),
+SIGABRT from an Objective-C exception. The exception trace passes through
+`NSURL URLByAppendingPathComponent:`, `zxPluginsInject.dylib` at offset 18664,
+and `IGFamilyLegacyAppGroupContainerURL`. All required injected libraries and
+CydiaSubstrate are present and loaded; this is not a missing-library failure.
+
+The pinned helper's `containerURLForSecurityApplicationGroupIdentifier:` hook
+appends its argument to an emulated app-group URL without validating it. The
+trace and source point to a nil group identifier. This remains an inference
+until device testing of the repair. The helper now uses a stable local fallback
+identifier for nil/empty requests, preserving the original handling of named
+groups. Patch: `patches/zxPluginsInject-nil-group.patch`; upstream source revision:
+`d849cd510f9a925d692941b8d43c5efe1ca56649` (asdfzxcvbn/zxPluginsInject).
+
+The hosted build first compiles a Foundation harness from the actual hook
+method body, requires the unpatched nil case to throw, then applies the patch
+and requires nil/empty/named cases to pass. It compiles the patched helper and
+passes it through ipapatch's custom `--dylib` option. Extension removal remains
+enabled. Linux preparation verified patch applicability and workflow/script
+syntax; the macOS harness and build must still run. Device launch remains the
+final feedback loop, and Instagram 455 feature compatibility is unverified.
+
+The private crash attachment is not copied into Git; this note records only
+the diagnostic stack and OS version.

@@ -1,0 +1,9 @@
+diff --git a/src/SideloadFix.xm b/src/SideloadFix.xm
+--- a/src/SideloadFix.xm
++++ b/src/SideloadFix.xm
+@@ -18,0 +19,5 @@
++	// Instagram can request its legacy group with a nil identifier after resigning.
++	// Keep this emulated group inside the app's existing sandbox fallback.
++	if (groupIdentifier.length == 0) {
++		groupIdentifier = @"group.com.burbn.instagram";
++	}
