@@ -5,6 +5,7 @@
  */
 #import <Foundation/Foundation.h>
 #import <Security/Security.h>
+#import "SessionCompatibility.h"
 
 // Discover the group permitted by the current signature without reading tokens.
 static NSString *SCIAvailableKeychainAccessGroup(void) {
@@ -33,6 +34,10 @@ static NSString *SCIAvailableKeychainAccessGroup(void) {
         }
     });
     return availableGroup;
+}
+
+NSString *SCISessionAccessGroupForDiagnostics(void) {
+    return SCIAvailableKeychainAccessGroup();
 }
 
 // Instagram's wrappers also consult their access group before reaching SecItem*.

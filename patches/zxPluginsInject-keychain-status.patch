@@ -1,0 +1,51 @@
+--- a/src/SecRebinds.xm
++++ b/src/SecRebinds.xm
+@@ -10,0 +11,28 @@
++
++// Diagnostic counters contain only operation names, OSStatus values and counts.
++static NSMutableDictionary *SCIKeychainStatusCounts(void) {
++    static NSMutableDictionary *counts;
++    static dispatch_once_t once;
++    dispatch_once(&once, ^{ counts = [NSMutableDictionary dictionary]; });
++    return counts;
++}
++
++static void SCIRecordKeychainStatus(NSString *operation, OSStatus status) {
++    NSMutableDictionary *counts = SCIKeychainStatusCounts();
++    @synchronized (counts) {
++        NSMutableDictionary *statuses = counts[operation];
++        if (!statuses) { statuses = [NSMutableDictionary dictionary]; counts[operation] = statuses; }
++        NSString *code = [NSString stringWithFormat:@"%d", (int)status];
++        statuses[code] = @([statuses[code] unsignedIntegerValue] + 1);
++    }
++}
++
++extern "C" __attribute__((visibility("default"))) NSDictionary *SCISideloadKeychainStatuses(void) {
++    NSMutableDictionary *counts = SCIKeychainStatusCounts();
++    @synchronized (counts) {
++        NSMutableDictionary *snapshot = [NSMutableDictionary dictionary];
++        for (NSString *operation in counts) snapshot[operation] = [counts[operation] copy];
++        return [snapshot copy];
++    }
++}
++
+@@ -14 +42,3 @@
+-	return origSecItemAdd((__bridge CFDictionaryRef)mutableAttributes, result);
++	OSStatus status = origSecItemAdd((__bridge CFDictionaryRef)mutableAttributes, result);
++	SCIRecordKeychainStatus(@"add", status);
++	return status;
+@@ -20 +50,3 @@
+-	return origSecItemCopyMatching((__bridge CFDictionaryRef)mutableQuery, result);
++	OSStatus status = origSecItemCopyMatching((__bridge CFDictionaryRef)mutableQuery, result);
++	SCIRecordKeychainStatus(@"read", status);
++	return status;
+@@ -26 +58,3 @@
+-	return origSecItemUpdate((__bridge CFDictionaryRef)mutableQuery, attributesToUpdate);
++	OSStatus status = origSecItemUpdate((__bridge CFDictionaryRef)mutableQuery, attributesToUpdate);
++	SCIRecordKeychainStatus(@"update", status);
++	return status;
+@@ -32 +66,3 @@
+-	return origSecItemDelete((__bridge CFDictionaryRef)mutableQuery);
++	OSStatus status = origSecItemDelete((__bridge CFDictionaryRef)mutableQuery);
++	SCIRecordKeychainStatus(@"delete", status);
++	return status;

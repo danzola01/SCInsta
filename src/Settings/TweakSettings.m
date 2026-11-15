@@ -1,4 +1,5 @@
 #import "TweakSettings.h"
+#import "SCISessionDiagnostics.h"
 
 @implementation SCITweakSettings
 
@@ -18,6 +19,7 @@
         @{
             @"header": @"",
             @"rows": @[
+                [SCISetting buttonCellWithTitle:@"Session storage check" subtitle:@"Check test markers after restarting the app" icon:[SCISymbol symbolWithName:@"stethoscope"] action:^{ [SCISessionDiagnostics show]; }],
                 [SCISetting linkCellWithTitle:@"Donate" subtitle:@"Consider donating to support this tweak's development!" icon:[SCISymbol symbolWithName:@"heart.circle.fill" color:[UIColor systemPinkColor] size:20.0] url:@"https://ko-fi.com/SoCuul"]
             ]
         },

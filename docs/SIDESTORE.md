@@ -304,3 +304,33 @@ Unpublished draft: `scinsta-ipa43690687565-1`.
 Owner page: https://github.com/danzola01/SCInsta/releases/tag/untagged-41ec923a7572d5b2dcf0
 Asset: `SCInsta.ipa`, 291,813,487 bytes. Remote SHA-256:
 `06cc20c74b4d4393f49b5e8be3a87c94d746a3ff41ad5864666c8dfb1929b06f`.
+
+## Diagnostic build for persistent logout
+
+User reports the cache-preservation trial still loses login after force quit.
+SCInsta preferences remain enabled, and the beta prompt stays fixed. Disabling
+startup cleanup did not resolve the symptom; no further storage behavior is
+changed in this diagnostic trial.
+
+A top-level `Session storage check` button primes and reports harmless markers:
+app-support file, the helper's default emulated app-group file, standard and group
+preferences, and one exact keychain item owned by the diagnostic. It compares
+its own marker data only; it never enumerates or reads Instagram credentials.
+The available keychain group is reported as available/same/changed, never as a
+raw group identifier. Reports omit paths, account names, tokens, and passwords.
+The initial marker observations are frozen per process, so reopening the sheet
+within the same run does not falsely count a new marker as surviving a restart.
+
+The helper additionally counts operation names and OSStatus results at its real
+SecItem wrapper boundary. Reports include the probe's operations. The patch
+never copies request or result contents into telemetry and preserves all return
+values. A hosted native harness exercises the actual wrappers with success,
+not-found, invalid-parameter and missing-entitlement return codes, checks counts,
+checks immutable snapshots, and asserts fixture request data is absent.
+Temporary counters/diagnostic UI should be removed after resolving the cause.
+
+User feedback loop: install over the app; log in; open two-finger settings and
+`Session storage check` to prime markers; force quit; reopen; open settings even
+if the login screen appears; Copy report and paste it into the conversation
+before logging in again. The repeated login screen itself is also useful if
+all probes survive. No automated test here establishes device session retention.

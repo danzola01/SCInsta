@@ -128,6 +128,8 @@ jobs:
                 python3 ../main/scripts/test_group_fallback.py src/SideloadFix.xm --expect-crash
                 git apply --unidiff-zero ../main/patches/zxPluginsInject-nil-group.patch
                 python3 ../main/scripts/test_group_fallback.py src/SideloadFix.xm
+                git apply --unidiff-zero ../main/patches/zxPluginsInject-keychain-status.patch
+                python3 ../main/scripts/test_keychain_status.py src/SecRebinds.xm
                 make TARGET=iphone:clang:16.2:14.0
                 test -f .theos/obj/debug/zxPluginsInject.dylib
 
