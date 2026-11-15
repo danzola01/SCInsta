@@ -15,6 +15,11 @@
   was a download error and is not used. Inspection does not establish provenance.
 - Base draft tag: `base-instagram-455.0.0`. This is a trial with a version newer
   than upstream lists as tested; compatibility and device behavior are unverified.
+- Remote base asset digest and size match the local inspection; the release
+  remains an unpublished draft.
+- First trial dispatched: https://github.com/danzola01/SCInsta/actions/runs/43661971200
+  (build source `c23583282c3f21cbd70d215822037c5cd17c37ca`). The run was
+  in progress when recorded; no successful output or device result yet.
 - App name: `SCInsta`; bundle ID: `com.danzola.scinsta`, for installation beside
   App Store Instagram. Keep this identity and SideStore signing account stable
   across updates. Push notifications need device verification.
