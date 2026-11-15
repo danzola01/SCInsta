@@ -346,3 +346,28 @@ Unpublished draft: `scinsta-ipa43695233393-1`.
 Owner page: https://github.com/danzola01/SCInsta/releases/tag/untagged-4485ac6e0def8f4a8af9
 Asset: `SCInsta.ipa`, 291,819,818 bytes. Remote SHA-256:
 `5cca57f68410c1e939a43a9552ea053a695147b1cc1a4b216cc2642534d3a48b`.
+
+## Device diagnostic results and saved-account clarification
+
+The user's first check primed all markers. After force quit, before tapping
+Continue, every probe was retained: app file, default emulated app-group file,
+standard preferences, group preferences (sync yes), and keychain marker (read 0).
+The available access group was unchanged. Captured API statuses were successful
+operations and item-not-found (-25300), with no captured entitlement failure.
+Successful deletes were counted but no deleted item identities were recorded;
+there is no evidence that those deletes removed session credentials.
+
+The user's screenshots show a saved-account Continue screen (no password
+required) plus the Instagram map introduction recurring after restart. Thus the
+remaining symptom is active-account restoration and onboarding dismissal state,
+not complete loss of all storage. The probes do not establish that Instagram's
+specific per-account preference domains or session records are being restored.
+
+Next reversible device test, without a rebuild or identity change: enable
+SCInsta Settings > Debug > Disable safe mode. Existing source hooks suppress
+`IGSafeModeChecker` initialization and report zero crashes. This is intended to
+prevent recovery-driven preference resets, and previous startup crashes make it
+a candidate; neither the presence nor effect of that recovery path is confirmed
+on this Instagram 455 build. Continue once, dismiss the map prompt, then perform
+two force-quit/reopen cycles. If unchanged, turn the switch back off and report
+the result. Do not declare the cause or a fix before that test.
