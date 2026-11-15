@@ -175,3 +175,18 @@ Helper-repair trial run: https://github.com/danzola01/SCInsta/actions/runs/43664
 Source: `0d3346f708d461bce4b755afadb4216d82f5a80a`. Failed before testing
 the patch: the harness used Objective-C instead of Objective-C++ for upstream
 C++ condition declarations. Corrected to `.mm` and `clang++`.
+
+### Successful helper-repair build
+
+- Run: https://github.com/danzola01/SCInsta/actions/runs/43664553515
+- Source: `6cb53222f73f4d5b0acf4543f219df6ad69a516a`.
+- Hosted macOS harness reproduced `NSInvalidArgumentException` for the original
+  nil-group call, then passed patched nil/empty/named cases. Helper compilation,
+  IPA build, decryption/identity/library checks and extension-free check passed.
+- Output draft: `scinsta-ipa43664553515-1`, verified unpublished.
+- Owner page: https://github.com/danzola01/SCInsta/releases/tag/untagged-37bdf5e3be6f5a18e0f8
+- Asset: `SCInsta.ipa`, 291,809,779 bytes, remote SHA-256
+  `25089c7017b32525ba784f68ecae1d0947f307acaf71c7549fb377238928d2a8`.
+- Install this new asset over the existing SCInsta using the same signing account.
+  Device launch/login and tweak behavior remain unverified; request a fresh
+  crash report if launch still fails. Do not treat the harness as device proof.
