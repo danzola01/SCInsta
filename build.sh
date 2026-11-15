@@ -87,6 +87,10 @@ then
     # Patch IPA for sideloading
     ipapatch --input "packages/SCInsta-sideloaded.ipa" --inplace --noconfirm
 
+    # Newer Instagram versions also embed extensions outside PlugIns/.
+    python3 scripts/strip_extensions.py packages/SCInsta-sideloaded.ipa packages/SCInsta-no-extensions.ipa
+    mv packages/SCInsta-no-extensions.ipa packages/SCInsta-sideloaded.ipa
+
     echo -e "\033[1m\033[32mDone, we hope you enjoy SCInsta!\033[0m\n\nYou can find the ipa file at: $(pwd)/packages"
 
 elif [ "$1" == "rootless" ];

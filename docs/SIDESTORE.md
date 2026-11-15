@@ -18,8 +18,11 @@
 - Remote base asset digest and size match the local inspection; the release
   remains an unpublished draft.
 - First trial dispatched: https://github.com/danzola01/SCInsta/actions/runs/43661971200
-  (build source `c23583282c3f21cbd70d215822037c5cd17c37ca`). The run was
-  in progress when recorded; no successful output or device result yet.
+  (build source `c23583282c3f21cbd70d215822037c5cd17c37ca`). The run succeeded;
+  its IPA SHA-256 is
+  `516c23afd379f3bb4651273be99ec42db17f3eac999a3594890e232891d3c6bc`.
+  Device installation failed with a lock-screen extension bundle-ID mismatch,
+  including after the user retried removing extensions in SideStore.
 - App name: `SCInsta`; bundle ID: `com.danzola.scinsta`, for installation beside
   App Store Instagram. Keep this identity and SideStore signing account stable
   across updates. Push notifications need device verification.
@@ -99,8 +102,8 @@ then install through the existing SideStore setup. Keep releases unpublished.
   encrypted executable metadata and an incorrect expected hash.
 - Dispatcher rejected blank saved inputs and generated a valid payload with
   fixture inputs in dry-run mode; no workflow dispatch was made.
-- A full macOS build, signing, login, notifications, and device behavior remain
-  unverified until the base IPA is supplied.
+- A hosted macOS build succeeded. Device installation failed as recorded above;
+  launch, login, notifications, and tweak behavior remain unverified.
 
 ## Device acceptance and updates
 
@@ -117,3 +120,25 @@ Keep app-specific configuration, artifacts, and notes here. Never commit IPAs,
 signing material, credentials, or signed URLs. Commit app changes here before
 updating the parent submodule revision, and ensure the referenced commit is on
 the app remote before pushing the parent. Never publish proprietary IPA releases.
+
+## Extension-removal repair
+
+The built IPA contained seven extensions in `PlugIns/` and an eighth in
+`Extensions/InstagramExtensionLockScreenCamera.appex`. SideStore's prompt listed
+seven; the user-reported repeated failure named the eighth. Its bundle ID lacked
+the signing suffix that SideStore appended to the main bundle ID.
+
+`scripts/strip_extensions.py` removes every embedded `.appex` tree from either
+location without modifying retained entry contents. `build.sh` now applies it
+after ipapatch for sideload builds, and the workflow rejects leftover extensions.
+The regression fixture covers both locations, retained resources, and unchanged
+input. The `--check` command failed on the actual first-build IPA, passed on the
+repaired IPA, and every retained entry was compared byte-for-byte by SHA-256.
+On-device signing and installation remain the final verification step.
+
+Replacement: `output/SCInsta-no-extensions.ipa`, 300,422,061 bytes, SHA-256
+`47774f06c8d429cafbe17a1f43975bb7530ac65c24efd4db7ddb5f71dda7d277`.
+This is a repack of the successful first build, not a new tweak compilation.
+Main executable and all tweak libraries are unchanged. Widgets, sharing into
+Instagram, lock-screen camera and notification extensions have been removed.
+Draft destination: `scinsta-455-no-extensions-1`; keep unpublished.

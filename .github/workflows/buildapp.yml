@@ -137,6 +137,7 @@ jobs:
             - name: Validate generated IPA
               run: |
                 set -euo pipefail
+                python3 main/scripts/strip_extensions.py --check main/packages/SCInsta-sideloaded.ipa
                 cp main/packages/SCInsta-sideloaded.ipa main/output/SCInsta.ipa
                 python3 main/scripts/inspect_ipa.py main/output/SCInsta.ipa --require-decrypted --output main/output/built-ipa.json
                 python3 - <<'PYTHON'
