@@ -334,3 +334,15 @@ User feedback loop: install over the app; log in; open two-finger settings and
 if the login screen appears; Copy report and paste it into the conversation
 before logging in again. The repeated login screen itself is also useful if
 all probes survive. No automated test here establishes device session retention.
+
+Diagnostic build succeeded:
+https://github.com/danzola01/SCInsta/actions/runs/43695233393
+Source: `46d377a5b1d8628545a702a310ec39c003a48876`.
+Native helper tests verified unchanged return codes, independent counter snapshots
+and exclusion of fixture request contents. The nil-group regression harness,
+app compilation and IPA validation also passed. No diagnostic report has yet
+been captured from the user's device, and login persistence remains unresolved.
+Unpublished draft: `scinsta-ipa43695233393-1`.
+Owner page: https://github.com/danzola01/SCInsta/releases/tag/untagged-4485ac6e0def8f4a8af9
+Asset: `SCInsta.ipa`, 291,819,818 bytes. Remote SHA-256:
+`5cca57f68410c1e939a43a9552ea053a695147b1cc1a4b216cc2642534d3a48b`.
