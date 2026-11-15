@@ -223,3 +223,36 @@ Asset: `SCInsta.ipa`, 291,811,120 bytes. Remote SHA-256:
 `df4e588f20187006ebc475f762bb3394538999e096aa551232d87cc669f36f00`.
 Install over the previous app, then hold two fingers still for one second on
 a normal app screen and verify the SCInsta settings sheet opens.
+
+## Session persistence and beta-prompt trial
+
+The user reports the settings-access build is working, but swiping the app away
+and reopening requires login again. This is an ordinary force quit, not an
+unprompted crash. They also report a recurring beta-update prompt. The attached
+image was the earlier Analytics Logs screen, so the exact prompt is not captured.
+
+Candidates considered: automatic cache cleanup, keychain access-group routing,
+and emulated app-group persistence. No local iOS runtime or signed device session
+is available to reproduce the logout here. The user-device feedback loop is:
+install over the existing app, log in, swipe away, reopen, repeat twice; record
+whether password entry or only a saved-account Continue action is required and
+whether the beta prompt recurs. Do not mark session persistence fixed from a
+successful compilation or archive check.
+
+Primary reference discovered after the beta clue:
+https://github.com/Mihir-A/Unscroll/blob/01c5ed9b0678ae233dcdc81033e4500e6eac30e6/runtime_fix/UnscrollRuntimeFix.m
+It covers both forced-quit logouts and TestFlight misclassification. The base IPA
+contains all three targeted keychain wrapper class names and receipt selectors.
+`SessionCompatibility.xm` adapts just the wrapper access-group and receipt hooks.
+It probes the access group available to the current signature using a metadata
+item; it does not request or log credential data. If discovery fails, the wrapper
+keeps its original behavior. Only the main bundle's sandbox receipt URL is mapped
+to a normal receipt path. This does not create a receipt or change purchase data.
+MIT attribution is retained under `licenses/IGSideloadFix-MIT.txt`.
+
+The first trial changes these two related compatibility behaviors only. Existing
+app-group paths, nil-group fallback, startup cache cleanup, app identity and
+feature preferences are preserved. Cache deletion was a candidate, not a proven
+cause; it remains a separate experiment if the targeted helper repair fails.
+Native compilation and existing helper/IPA checks will run on hosted macOS.
+Session persistence and beta-prompt behavior require user-device verification.
