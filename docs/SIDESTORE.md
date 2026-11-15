@@ -256,3 +256,15 @@ feature preferences are preserved. Cache deletion was a candidate, not a proven
 cause; it remains a separate experiment if the targeted helper repair fails.
 Native compilation and existing helper/IPA checks will run on hosted macOS.
 Session persistence and beta-prompt behavior require user-device verification.
+
+Session-compatibility trial build succeeded:
+https://github.com/danzola01/SCInsta/actions/runs/43687216576
+Source: `dfdd00f5dc6a2adfe2a48bf0d31fd75e39d904ae`.
+Hosted compilation, existing nil-group regression harness, IPA encryption/identity/
+library checks and extension-free check passed. No device session test has run.
+Unpublished draft: `scinsta-ipa43687216576-1`.
+Owner page: https://github.com/danzola01/SCInsta/releases/tag/untagged-81d7a86e2b6929520cf2
+Asset: `SCInsta.ipa`, 291,813,522 bytes, remote SHA-256:
+`1ed1f7f991b4e9120c8a9c5f1a884f5568ca6351a1683e64d3c59aed0a41b8b4`.
+Install over the current app. User should log in once if necessary, then perform
+two force-quit/reopen cycles and report login persistence and beta-prompt behavior.
