@@ -7,8 +7,14 @@
 - Initial upstream revision: `7bb71807190518ed45d21c716704c38e45a19253`.
 - Upstream README lists SCInsta v1.1.1 as tested on Instagram 418.2.0.
 - Target reported for the existing YouMod setup: iPhone 17 / iOS 27.0.
-- Source and workflow preparation is complete. No base Instagram IPA has been
-  supplied, and no hosted build or device installation has been performed.
+- Supplied base: Instagram 455.0.0 (1109782713), minimum iOS 16.3,
+  358,943,896 bytes. SHA-256:
+  `9b739ddad2bdb7368972d612eaac350213ffee78d41e4b4296ddacaac61d5dc3`.
+- Archive CRC passed; all 15 detected Mach-O executables have `cryptid: 0`.
+  No dylibs or provisioning profiles were detected. The earlier 879-byte file
+  was a download error and is not used. Inspection does not establish provenance.
+- Base draft tag: `base-instagram-455.0.0`. This is a trial with a version newer
+  than upstream lists as tested; compatibility and device behavior are unverified.
 - App name: `SCInsta`; bundle ID: `com.danzola.scinsta`, for installation beside
   App Store Instagram. Keep this identity and SideStore signing account stable
   across updates. Push notifications need device verification.
@@ -53,7 +59,7 @@ gh release create base-instagram-418.2.0 packages/com.burbn.instagram.ipa --repo
 
 If the supplied version differs, choose a matching tag and reassess compatibility.
 Set `ipa_release` and `ipa_sha256` in `config/sidestore-inputs.json` to the tag
-and inspected hash. Both are intentionally blank until an IPA is available.
+and inspected hash. These now select the inspected 455.0.0 base.
 Never put credentials or signed download URLs in this file.
 
 ## Build and retrieve
