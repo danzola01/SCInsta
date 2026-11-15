@@ -195,3 +195,20 @@ Device update: user reports the helper-repair build opens successfully. This
 confirms launch by user report; login, feature controls and signing refresh
 have not been separately verified. Settings access is a long press on the
 profile menu button; recommended feature selection is listed above.
+
+## Settings access repair trial
+
+After launch/login, the user reports that holding the profile menu does not open
+settings on Instagram 455. The old hook targets `IGBadgedNavigationButton` and
+only attaches if that view has no gesture recognizers; the screenshot does not
+identify the actual class or recognizers, so the precise private-UI mismatch is
+unverified. A new public-UIKit `UIWindow.becomeKeyWindow` hook adds one two-finger,
+one-second long press per normal-level window. It leaves the old shortcut in
+place and avoids duplicate registration with an associated object.
+
+The settings presenter now walks to the already-presented controller and refuses
+to stack duplicate SCInsta settings navigation controllers. Onboarding describes
+the two-finger shortcut. No feature preferences were changed. Hosted compilation
+will validate the UIKit code; actual gesture delivery and feature behavior need
+user testing. The existing device report is the failing UI feedback loop; no
+local iOS runtime is available for a UI regression test.

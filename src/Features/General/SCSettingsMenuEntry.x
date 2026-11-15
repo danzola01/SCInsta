@@ -1,5 +1,8 @@
 #import "../../InstagramHeaders.h"
 #import "../../Settings/SCISettingsViewController.h"
+#import <objc/runtime.h>
+
+static char SCIWindowSettingsGestureKey;
 
 // Show SCInsta tweak settings by holding on the settings/more icon under profile for ~1 second
 %hook IGBadgedNavigationButton
@@ -54,5 +57,25 @@
     if (sender.state != UIGestureRecognizerStateBegan) return;
 
     [SCIUtils showSettingsVC:[self window]];
+}
+%end
+
+// Public UIKit entry point, independent of Instagram's private button classes.
+%hook UIWindow
+- (void)becomeKeyWindow {
+    %orig;
+    if (self.windowLevel != UIWindowLevelNormal || objc_getAssociatedObject(self, &SCIWindowSettingsGestureKey)) return;
+
+    UILongPressGestureRecognizer *gesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(sci_openSettingsFromWindow:)];
+    gesture.numberOfTouchesRequired = 2;
+    gesture.minimumPressDuration = 1.0;
+    gesture.cancelsTouchesInView = NO;
+    objc_setAssociatedObject(self, &SCIWindowSettingsGestureKey, gesture, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [self addGestureRecognizer:gesture];
+}
+
+%new - (void)sci_openSettingsFromWindow:(UILongPressGestureRecognizer *)gesture {
+    if (gesture.state != UIGestureRecognizerStateBegan) return;
+    [SCIUtils showSettingsVC:self];
 }
 %end

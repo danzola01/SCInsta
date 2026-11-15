@@ -90,11 +90,21 @@
     [topMostController() presentViewController:acVC animated:true completion:nil];
 }
 + (void)showSettingsVC:(UIWindow *)window {
-    UIViewController *rootController = [window rootViewController];
+    UIViewController *presenter = window.rootViewController;
+    while (presenter.presentedViewController && !presenter.presentedViewController.isBeingDismissed) {
+        presenter = presenter.presentedViewController;
+    }
+    if (!presenter || presenter.isBeingDismissed || presenter.isBeingPresented) return;
+    if ([presenter isKindOfClass:[SCISettingsViewController class]]) return;
+    if ([presenter isKindOfClass:[UINavigationController class]]) {
+        for (UIViewController *controller in ((UINavigationController *)presenter).viewControllers) {
+            if ([controller isKindOfClass:[SCISettingsViewController class]]) return;
+        }
+    }
+
     SCISettingsViewController *settingsViewController = [SCISettingsViewController new];
     UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:settingsViewController];
-    
-    [rootController presentViewController:navigationController animated:YES completion:nil];
+    [presenter presentViewController:navigationController animated:YES completion:nil];
 }
 
 // Colours
