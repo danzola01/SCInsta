@@ -290,3 +290,17 @@ leave it open briefly, then swipe away and reopen twice. Check both login state
 and SCInsta preference retention. If logout persists, obtain the actual login
 screen and investigate keychain operations/group preferences with targeted,
 credential-free diagnostics rather than claiming this change solved it.
+
+Additional device feedback: SCInsta preferences (including hiding Reels) remain
+enabled after reopening and logging in again. Preference retention is confirmed
+by user report; the remaining symptom is Instagram login state specifically.
+
+Cache-preservation trial build succeeded:
+https://github.com/danzola01/SCInsta/actions/runs/43690687565
+Source: `13ce5d3f8b896918afa069f2b7fdce8fc34f351b`.
+Hosted compilation, helper regression and IPA checks passed. Login persistence
+has not yet been verified on the device with this version.
+Unpublished draft: `scinsta-ipa43690687565-1`.
+Owner page: https://github.com/danzola01/SCInsta/releases/tag/untagged-41ec923a7572d5b2dcf0
+Asset: `SCInsta.ipa`, 291,813,487 bytes. Remote SHA-256:
+`06cc20c74b4d4393f49b5e8be3a87c94d746a3ff41ad5864666c8dfb1929b06f`.
