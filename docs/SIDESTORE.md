@@ -190,3 +190,8 @@ C++ condition declarations. Corrected to `.mm` and `clang++`.
 - Install this new asset over the existing SCInsta using the same signing account.
   Device launch/login and tweak behavior remain unverified; request a fresh
   crash report if launch still fails. Do not treat the harness as device proof.
+
+Device update: user reports the helper-repair build opens successfully. This
+confirms launch by user report; login, feature controls and signing refresh
+have not been separately verified. Settings access is a long press on the
+profile menu button; recommended feature selection is listed above.
