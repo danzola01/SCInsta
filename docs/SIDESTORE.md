@@ -172,4 +172,6 @@ The private crash attachment is not copied into Git; this note records only
 the diagnostic stack and OS version.
 
 Helper-repair trial run: https://github.com/danzola01/SCInsta/actions/runs/43664402825
-Source: `0d3346f708d461bce4b755afadb4216d82f5a80a`. Dispatched; outcome pending.
+Source: `0d3346f708d461bce4b755afadb4216d82f5a80a`. Failed before testing
+the patch: the harness used Objective-C instead of Objective-C++ for upstream
+C++ condition declarations. Corrected to `.mm` and `clang++`.

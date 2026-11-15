@@ -39,8 +39,8 @@ int main() {
 '''
 with tempfile.TemporaryDirectory() as temporary:
     path = Path(temporary)
-    (path / 'probe.m').write_text(program)
-    subprocess.run(['clang', '-fobjc-arc', '-framework', 'Foundation', str(path / 'probe.m'), '-o', str(path / 'probe')], check=True)
+    (path / 'probe.mm').write_text(program)
+    subprocess.run(['clang++', '-fobjc-arc', '-framework', 'Foundation', str(path / 'probe.mm'), '-o', str(path / 'probe')], check=True)
     result = subprocess.run([str(path / 'probe')])
     expected = 10 if args.expect_crash else 0
     if result.returncode != expected:
